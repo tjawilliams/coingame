@@ -10,7 +10,7 @@ export function Album() {
   return (
     <div className="space-y-6">
       {visibleSets.map((set) => {
-        const coinsInSet = coinDefinitions.filter((c) => c.setId === set.id);
+        const coinsInSet = coinDefinitions.filter((c) => c.setIds.includes(set.id));
         const completion = setCompletion(set.id);
 
         return (
