@@ -1,8 +1,13 @@
-import type { CoinSet, CoinDefinition, TriviaQuestion } from "../types";
+import Papa from "papaparse";
+import type { CoinSet, CoinDefinition, TriviaQuestion, Rarity } from "../types";
 
 // This file plays the role your published Google Sheet will eventually play.
 // Swap `fetchSeedData()` for a real fetch+parse of your sheet's CSV export
 // once the core loop below is working end to end (see the roadmap doc).
+
+const COIN_SETS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiWUQEDK7PTrEHZxQ1hSUSqOMxSgGxlEeb1jaRm9Ns6rioTQvlvQFytAKH7lGcwWVJjy97MAFVwUvb/pub?gid=0&single=true&output=csv";
+const COINS_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiWUQEDK7PTrEHZxQ1hSUSqOMxSgGxlEeb1jaRm9Ns6rioTQvlvQFytAKH7lGcwWVJjy97MAFVwUvb/pub?gid=1937635961&single=true&output=csv";
+const TRIVIA_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiWUQEDK7PTrEHZxQ1hSUSqOMxSgGxlEeb1jaRm9Ns6rioTQvlvQFytAKH7lGcwWVJjy97MAFVwUvb/pub?gid=1820301888&single=true&output=csv";
 
 export const coinSets: CoinSet[] = [
   {
@@ -76,6 +81,126 @@ export const triviaQuestions: TriviaQuestion[] = [
 ];
 
 /** Simulates an async fetch — this is the seam where a real Sheet fetch will go. */
+async function fetchCsv<T>(url: string): Promise<T[]> {
+  const response = await fetch(url);
+  console.log("[seedData] Fetching CSV:", url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch CSV from ${url}: ${response.status} ${response.statusText}`);
+  }
+  const csvText = await response.text();
+  console.log("[seedData] Raw CSV length:", csvText.length);
+
+  const result = Papa.parse<T>(csvText, {
+    header: true,
+    skipEmptyLines: true,
+  });
+
+  if (result.errors.length) {
+    console.warn("CSV parse errors:", result.errors);
+  }
+  console.log("[seedData] Parsed rows count:", result.data.length);
+  return result.data;
+}
+
+function parseRarity(raw: string): Rarity {
+  const r = raw.toLowerCase().trim();
+  if (r === "common") return "common";
+  if (r === "uncommon") return "uncommon";
+  if (r === "rare") return "rare";
+  if (r === "legendary") return "legendary";
+  // Fallback
+  return "common";
+}
+
 export async function fetchSeedData() {
+  console.log("[seedData] fetchSeedData() called");
+  const [setsRows, coinsRows, triviaRows] = await Promise.all([
+    fetchCsv<Record<string, string>>(COIN_SETS_CSV_URL),
+    fetchCsv<Record<string, string>>(COINS_CSV_URL),
+    fetchCsv<Record<string, string>>(TRIVIA_CSV_URL),
+  ]);
+
+  console.log("[seedData] setsRows:", setsRows);
+  console.log("[seedData] coinsRows:", coinsRows);
+  console.log("[seedData] triviaRows:", triviaRows);
+
+  // Map CoinSets
+  const coinSets: CoinSet[] = setsRows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    unlockThreshold: Number(row.unlockThreshold) || 0,
+    requiresSetId: row.requiresSetId?.trim() ? row.requiresSetId.trim() : null,
+  }));
+
+  // Map Coins
+  const coinDefinitions: CoinDefinition[] = coinsRows.map((row) => {
+    // Support both single setId and multi-set setIds
+    const setIdRaw = row.setId?.trim();
+    const setIdsRaw = row.setIds?.trim();
+
+    let setIds: string[];
+    if (setIdsRaw) {
+      setIds = setIdsRaw
+        .split(";")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else if (setIdRaw) {
+      setIds = [setIdRaw];
+    } else {
+      setIds = [];
+    }
+
+    return {
+      id: row.id,
+      setIds,
+      name: row.name,
+      rarity: parseRarity(row.rarity),
+      obverseUrl: row.obverseUrl,
+      reverseUrl: row.reverseUrl,
+      fact: row.fact,
+    };
+  });
+
+  // Map TriviaQuestions
+  const triviaQuestions: TriviaQuestion[] = triviaRows.map((row) => {
+    const optionsRaw = row.options ?? "";
+    const options = optionsRaw
+      .split(";")
+      .map((o) => o.trim())
+      .filter(Boolean);
+    const setIdRaw = row.setId?.trim();
+    const setIdsRaw = row.setIds?.trim();
+
+    let setIds: string[];
+    if (setIdsRaw) {
+      setIds = setIdsRaw
+        .split(";")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else if (setIdRaw) {
+      setIds = [setIdRaw];
+    } else {
+      setIds = [];
+    }
+
+    return {
+      id: row.id,
+      setIds,
+      question: row.question,
+      options,
+      correctIndex: Number(row.correctIndex) || 0,
+      reward: Number(row.reward) || 0,
+    };
+  });
+
+  console.log("[seedData] Final coinSets:", coinSets);
+  console.log("[seedData] Final coinDefinitions:", coinDefinitions);
+  console.log("[seedData] Final triviaQuestions:", triviaQuestions);
+
   return { coinSets, coinDefinitions, triviaQuestions };
 }
+
+// export async function fetchSeedData() {
+//   return { coinSets, coinDefinitions, triviaQuestions };
+// }

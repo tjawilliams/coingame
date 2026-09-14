@@ -1,0 +1,3 @@
+Coin Sets: https://docs.google.com/spreadsheets/d/e/2PACX-1vRiWUQEDK7PTrEHZxQ1hSUSqOMxSgGxlEeb1jaRm9Ns6rioTQvlvQFytAKH7lGcwWVJjy97MAFVwUvb/pub?gid=0&single=true&output=csv
+Coins: https://docs.google.com/spreadsheets/d/e/2PACX-1vRiWUQEDK7PTrEHZxQ1hSUSqOMxSgGxlEeb1jaRm9Ns6rioTQvlvQFytAKH7lGcwWVJjy97MAFVwUvb/pub?gid=1937635961&single=true&output=csv
+TriviaQuestions: https://docs.google.com/spreadsheets/d/e/2PACX-1vRiWUQEDK7PTrEHZxQ1hSUSqOMxSgGxlEeb1jaRm9Ns6rioTQvlvQFytAKH7lGcwWVJjy97MAFVwUvb/pub?gid=1820301888&single=true&output=csv

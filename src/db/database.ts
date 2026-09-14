@@ -23,8 +23,8 @@ class GameDatabase extends Dexie {
     super("hoard-coin-collector");
     this.version(1).stores({
       coinSets: "id",
-      coinDefinitions: "id, setId, rarity",
-      triviaQuestions: "id, setId",
+      coinDefinitions: "id, setIds, rarity",
+      triviaQuestions: "id, setIds",
       ownedCoins: "coinId",
       playerState: "id",
     });
