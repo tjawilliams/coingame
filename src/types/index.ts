@@ -20,7 +20,8 @@ export interface CoinDefinition {
   setIds: string[];
   name: string;
   rarity: Rarity;
-  imageUrl: string;
+  obverseUrl: string;
+  reverseUrl: string;
   fact: string;
 }
 

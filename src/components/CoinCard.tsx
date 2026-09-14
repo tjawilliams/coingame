@@ -26,12 +26,26 @@ export function CoinCard({ coin, quantity, onSell }: CoinCardProps) {
 
   return (
     <div className={`rounded-xl border-2 bg-parchment p-3 shadow-sm ${owned ? "" : "opacity-70"}`}>
-      <div className="flex items-center gap-3">
-        <img
-          src={coin.imageUrl}
-          alt={coin.name}
-          className={`h-16 w-16 rounded-full object-cover ring-2 ${RARITY_RING[coin.rarity]}`}
-        />
+      <div className="flex items-start gap-3">
+        <div className="flex-1 space-y-2">
+          <div>
+            <p className="text-xs font-medium text-ink-600">Obverse</p>
+            <img
+              src={coin.obverseUrl}
+              alt={`${coin.name} obverse`}
+              className={`h-20 w-20 rounded-full object-cover ring-2 ${RARITY_RING[coin.rarity]}`}
+            />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-ink-600">Reverse</p>
+            <img
+              src={coin.reverseUrl}
+              alt={`${coin.name} reverse`}
+              className={`h-20 w-20 rounded-full object-cover ring-2 ${RARITY_RING[coin.rarity]}`}
+            />
+          </div>
+        </div>
+         
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between">
             <h3 className="truncate font-plex text-sm font-semibold text-ink-900">{coin.name}</h3>
