@@ -17,7 +17,7 @@ export interface CoinSet {
 
 export interface CoinDefinition {
   id: string;
-  setId: string;
+  setIds: string[];
   name: string;
   rarity: Rarity;
   imageUrl: string;
@@ -26,7 +26,7 @@ export interface CoinDefinition {
 
 export interface TriviaQuestion {
   id: string;
-  setId: string | null;
+  setIds: string[] | null;
   question: string;
   options: string[];
   correctIndex: number;

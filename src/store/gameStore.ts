@@ -73,7 +73,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { player, coinDefinitions } = get();
     if (!player || player.currency < BAG_COST) return;
 
-    const poolForSet = coinDefinitions.filter((c) => c.setId === setId);
+    const poolForSet = coinDefinitions.filter((c) => c.setIds.includes(setId));
     if (poolForSet.length === 0) return;
 
     const rarity = rollRarity();
@@ -136,7 +136,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setCompletion: (setId: string) => {
     const { coinDefinitions, ownedCoins } = get();
-    const coinsInSet = coinDefinitions.filter((c) => c.setId === setId);
+    const coinsInSet = coinDefinitions.filter((c) => c.setIds.includes(setId));
     if (coinsInSet.length === 0) return 0;
     const ownedUnique = coinsInSet.filter((c) => ownedCoins[c.id]).length;
     return Math.round((ownedUnique / coinsInSet.length) * 100);
