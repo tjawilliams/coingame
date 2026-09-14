@@ -13,7 +13,7 @@ export function Trivia() {
 
   useEffect(() => {
     db.triviaQuestions.toArray().then((all) => {
-      const usable = all.filter((q) => !q.setId || isSetUnlocked(q.setId));
+      const usable = all.filter((q) => !q.setIds || isSetUnlocked(q.setIds[0]));
       setPool(usable);
       const first = usable[Math.floor(Math.random() * usable.length)] ?? null;
       setCurrent(first);
