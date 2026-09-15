@@ -9,7 +9,7 @@ type OpeningState =
   | { status: "revealed"; setId: string; coinId: string };
 
 export function Shop() {
-  const { coinSets, player, isSetUnlocked, buyBag, setCompletion, lastPulledCoin, coinDefinitions } =
+  const { bags, player, isBagUnlocked, buyBag, setCompletion, lastPulledCoin, coinDefinitions } =
     useGameStore();
 
   const [opening, setOpening] = useState<OpeningState>({ status: "idle" });
@@ -44,20 +44,20 @@ export function Shop() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {coinSets.map((set) => {
-          const unlocked = isSetUnlocked(set.id);
-          const completion = setCompletion(set.id);
-          const affordable = (player?.currency ?? 0) >= BAG_COST;
+        {bags.map((bag) => {
+          const unlocked = isBagUnlocked(bag);
+          const completion = setCompletion(bag.setId);
+          const affordable = (player?.currency ?? 0) >= bag.cost;
 
           return (
             <div
-              key={set.id}
+              key={bag.id}
               className={`rounded-xl border p-4 ${
                 unlocked ? "border-ink-900/10 bg-parchment" : "border-ink-900/5 bg-ink-50"
               }`}
             >
-              <h3 className="font-plex text-base font-semibold text-ink-900">{set.name}</h3>
-              <p className="mt-1 text-sm text-ink-600">{set.description}</p>
+              <h3 className="font-plex text-base font-semibold text-ink-900">{bag.name}</h3>
+              <p className="mt-1 text-sm text-ink-600">{bag.description}</p>
 
               {unlocked && (
                 <p className="mt-2 text-xs font-medium text-ink-700">
@@ -68,17 +68,17 @@ export function Shop() {
               <div className="mt-4 flex items-center justify-between">
                 {unlocked ? (
                   <button
-                    onClick={() => handleBuy(set.id)}
+                    onClick={() => buyBag(bag.setId)}
                     disabled={!affordable || opening.status === "opening"}
                     className="shrink-0 rounded-lg bg-copper-600 px-4 py-2 font-plex text-sm font-medium text-parchment transition hover:bg-copper-700 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    {opening.status === "opening" && opening.setId === set.id
+                    {opening.status === "opening" && opening.setId === bag.setId
                       ? "Opening…"
-                      : `Buy bag · ${BAG_COST}`}
+                      : `Buy bag · ${bag.cost}`}
                   </button>
                 ) : (
                   <p className="text-xs text-ink-500">
-                    Reach {set.unlockThreshold}% on {set.requiresSetId} to unlock
+                    Reach {bag.unlockThreshold}% on {bag.unlockRequiresSetId} to unlock
                   </p>
                 )}
               </div>

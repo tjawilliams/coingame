@@ -23,6 +23,7 @@ export interface CoinDefinition {
   obverseUrl: string;
   reverseUrl: string;
   fact: string;
+  denomination: string;
 }
 
 export interface TriviaQuestion {
@@ -32,6 +33,16 @@ export interface TriviaQuestion {
   options: string[];
   correctIndex: number;
   reward: number;
+}
+
+export interface Bag {
+  id: string;
+  name: string;
+  description: string;
+  setId: string;
+  cost: number;
+  unlockRequiresSetId: string | null;
+  unlockThreshold: number;
 }
 
 /** A coin the player actually owns, keyed by coin definition id. */

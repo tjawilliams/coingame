@@ -9,10 +9,12 @@ import {
   type OwnedCoin,
   type PlayerState,
   type Rarity,
+  type Bag,
 } from "../types";
 
 const STARTING_SET_ID = "uk";
 const BAG_COST = 25;
+const COINS_PER_BAG = 5;
 const SELL_VALUE: Record<Rarity, number> = {
   common: 1,
   uncommon: 5,
@@ -24,6 +26,7 @@ interface GameStore {
   loading: boolean;
   coinSets: CoinSet[];
   coinDefinitions: CoinDefinition[];
+  bags: Bag[];
   ownedCoins: Record<string, OwnedCoin>;
   player: PlayerState | null;
   lastPulledCoin: CoinDefinition | null;
@@ -34,6 +37,7 @@ interface GameStore {
   awardTriviaReward: (amount: number) => Promise<void>;
   setCompletion: (setId: string) => number;
   isSetUnlocked: (setId: string) => boolean;
+  isBagUnlocked: (bag: Bag) => boolean;
 }
 
 function rollRarity(): Rarity {
@@ -50,6 +54,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   loading: true,
   coinSets: [],
   coinDefinitions: [],
+  bags: [],
   ownedCoins: {},
   player: null,
   lastPulledCoin: null,
@@ -57,7 +62,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   init: async () => {
     const seed = await fetchSeedData();
     await seedReferenceDataIfEmpty(seed);
-    const player = await ensurePlayerState(STARTING_SET_ID);
+    const player = await ensurePlayerState(seed.coinSets[0]?.id ?? STARTING_SET_ID);
 
     const [coinSets, coinDefinitions, ownedList] = await Promise.all([
       db.coinSets.toArray(),
@@ -66,7 +71,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
     ]);
 
     const ownedCoins = Object.fromEntries(ownedList.map((o) => [o.coinId, o]));
-    set({ coinSets, coinDefinitions, ownedCoins, player, loading: false });
+    set({ coinSets, coinDefinitions, bags: seed.bags, ownedCoins, player, loading: false });
+  },
+
+  isBagUnlocked: (bag: Bag) => {
+    const { player, setCompletion } = get();
+    if (!player) return false;
+
+    if (!bag.unlockRequiresSetId) return true;
+
+    const completion = setCompletion(bag.unlockRequiresSetId);
+    return completion >= bag.unlockThreshold;
   },
 
   buyBag: async (setId: string) => {
@@ -76,28 +91,39 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const poolForSet = coinDefinitions.filter((c) => c.setIds.includes(setId));
     if (poolForSet.length === 0) return;
 
-    const rarity = rollRarity();
-    const candidates = poolForSet.filter((c) => c.rarity === rarity);
-    const pulled =
+    const pulledCoins: CoinDefinition[] = [];
+
+    for (let i = 0; i < COINS_PER_BAG; i++) {
+      const rarity = rollRarity();
+      const candidates = poolForSet.filter((c) => c.rarity === rarity);
+      const pulled =
       (candidates.length > 0 ? candidates : poolForSet)[
         Math.floor(Math.random() * (candidates.length > 0 ? candidates.length : poolForSet.length))
       ];
+      pulledCoins.push(pulled);
+    }
+
+    // Update ownedCoins for all pulled coins
+    const updates: Record<string, OwnedCoin> = {};
+    for (const pulled of pulledCoins) {
+      const existing = get().ownedCoins[pulled.id];
+      updates[pulled.id] = existing
+        ? { ...existing, quantity: existing.quantity + 1 }
+        : { coinId: pulled.id, quantity: 1, firstObtainedAt: Date.now() };
+    }
 
     const updatedPlayer: PlayerState = { ...player, currency: player.currency - BAG_COST };
-    const existing = get().ownedCoins[pulled.id];
-    const updatedOwned: OwnedCoin = existing
-      ? { ...existing, quantity: existing.quantity + 1 }
-      : { coinId: pulled.id, quantity: 1, firstObtainedAt: Date.now() };
 
     await db.transaction("rw", db.playerState, db.ownedCoins, async () => {
       await db.playerState.put(updatedPlayer);
-      await db.ownedCoins.put(updatedOwned);
+      await db.ownedCoins.bulkPut(Object.values(updates));
     });
 
+    const lastPulled = pulledCoins[pulledCoins.length - 1];
     set((state) => ({
       player: updatedPlayer,
-      ownedCoins: { ...state.ownedCoins, [pulled.id]: updatedOwned },
-      lastPulledCoin: pulled,
+      ownedCoins: { ...state.ownedCoins, ...updates },
+      lastPulledCoin: lastPulled,
     }));
 
     await checkUnlocks();
