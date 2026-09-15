@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useGameStore } from "../store/gameStore";
 
-const BAG_COST = 25;
-
 type OpeningState =
   | { status: "idle" }
-  | { status: "opening"; setId: string }
-  | { status: "revealed"; setId: string; coinId: string };
+  | { status: "opening"; bagId: string }
+  | { status: "revealed"; bagId: string; coinId: string };
 
 export function Shop() {
   const { bags, player, isBagUnlocked, buyBag, setCompletion, lastPulledCoin, coinDefinitions } =
@@ -14,12 +12,12 @@ export function Shop() {
 
   const [opening, setOpening] = useState<OpeningState>({ status: "idle" });
 
-  async function handleBuy(setId: string) {
-    setOpening({ status: "opening", setId });
+  async function handleBuy(bagId: string, setId: string) {
+    setOpening({ status: "opening", bagId });
     await buyBag(setId);
     const pulled = lastPulledCoin;
     if (pulled) {
-      setOpening({ status: "revealed", setId, coinId: pulled.id });
+      setOpening({ status: "revealed", bagId, coinId: pulled.id });
     } else {
       setOpening({ status: "idle" });
     }
@@ -68,11 +66,11 @@ export function Shop() {
               <div className="mt-4 flex items-center justify-between">
                 {unlocked ? (
                   <button
-                    onClick={() => buyBag(bag.setId)}
+                    onClick={() => handleBuy(bag.id, bag.setId)}
                     disabled={!affordable || opening.status === "opening"}
                     className="shrink-0 rounded-lg bg-copper-600 px-4 py-2 font-plex text-sm font-medium text-parchment transition hover:bg-copper-700 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    {opening.status === "opening" && opening.setId === bag.setId
+                    {opening.status === "opening" && opening.bagId === bag.id
                       ? "Opening…"
                       : `Buy bag · ${bag.cost}`}
                   </button>
