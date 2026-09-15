@@ -37,6 +37,7 @@ interface GameStore {
   setCompletion: (setId: string) => number;
   isSetUnlocked: (setId: string) => boolean;
   isBagUnlocked: (bag: Bag) => boolean;
+  bagCompletion: (bagId: string) => number;
 }
 
 function rollRarity(): Rarity {
@@ -178,6 +179,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (coinsInSet.length === 0) return 0;
     const ownedUnique = coinsInSet.filter((c) => ownedCoins[c.id]).length;
     return Math.round((ownedUnique / coinsInSet.length) * 100);
+  },
+
+  bagCompletion: (bagId: string) => {
+    const { coinDefinitions, ownedCoins, bags } = get();
+    const bag = bags.find((b) => b.id === bagId);
+    if (!bag) return 0;
+    const coinsInBag = coinDefinitions.filter(
+      (c) => c.setIds.includes(bag.setId) && (!c.allowedBagIds || c.allowedBagIds.includes(bag.id))
+    );
+    if (coinsInBag.length === 0) return 0;
+    const ownedUnique = coinsInBag.filter((c) => ownedCoins[c.id]).length;
+    return Math.round((ownedUnique / coinsInBag.length) * 100);
   },
 
   isSetUnlocked: (setId: string) => {

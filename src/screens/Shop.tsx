@@ -7,7 +7,7 @@ type OpeningState =
   | { status: "revealed"; bagId: string; coinId: string };
 
 export function Shop() {
-  const { bags, player, isBagUnlocked, buyBag, setCompletion, lastPulledCoin, coinDefinitions } =
+  const { bags, player, isBagUnlocked, buyBag, bagCompletion, lastPulledCoin, coinDefinitions } =
     useGameStore();
 
   const [opening, setOpening] = useState<OpeningState>({ status: "idle" });
@@ -44,7 +44,7 @@ export function Shop() {
       <div className="grid gap-4 sm:grid-cols-2">
         {bags.map((bag) => {
           const unlocked = isBagUnlocked(bag);
-          const completion = setCompletion(bag.setId);
+          const completion = bagCompletion(bag.id);
           const affordable = (player?.currency ?? 0) >= bag.cost;
 
           return (
