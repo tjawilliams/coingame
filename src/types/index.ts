@@ -61,10 +61,10 @@ export interface PlayerState {
 export const RARITY_ORDER: Rarity[] = ["common", "uncommon", "rare", "legendary"];
 
 export const RARITY_WEIGHTS: Record<Rarity, number> = {
-  common: 60,
-  uncommon: 27,
-  rare: 11,
-  legendary: 2,
+  common: 65,
+  uncommon: 25,
+  rare: 9,
+  legendary: 1,
 };
 
 export const RARITY_LABELS: Record<Rarity, string> = {
