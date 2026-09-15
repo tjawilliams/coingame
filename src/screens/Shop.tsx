@@ -12,9 +12,9 @@ export function Shop() {
 
   const [opening, setOpening] = useState<OpeningState>({ status: "idle" });
 
-  async function handleBuy(bagId: string, setId: string) {
+  async function handleBuy(bagId: string) {
     setOpening({ status: "opening", bagId });
-    await buyBag(setId);
+    await buyBag(bagId);
     const pulled = lastPulledCoin;
     if (pulled) {
       setOpening({ status: "revealed", bagId, coinId: pulled.id });
@@ -66,7 +66,7 @@ export function Shop() {
               <div className="mt-4 flex items-center justify-between">
                 {unlocked ? (
                   <button
-                    onClick={() => handleBuy(bag.id, bag.setId)}
+                    onClick={() => handleBuy(bag.id)}
                     disabled={!affordable || opening.status === "opening"}
                     className="shrink-0 rounded-lg bg-copper-600 px-4 py-2 font-plex text-sm font-medium text-parchment transition hover:bg-copper-700 disabled:cursor-not-allowed disabled:opacity-40"
                   >

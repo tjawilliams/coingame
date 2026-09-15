@@ -13,7 +13,6 @@ import {
 } from "../types";
 
 const STARTING_SET_ID = "uk";
-const BAG_COST = 25;
 const COINS_PER_BAG = 5;
 const SELL_VALUE: Record<Rarity, number> = {
   common: 1,
@@ -32,7 +31,7 @@ interface GameStore {
   lastPulledCoin: CoinDefinition | null;
 
   init: () => Promise<void>;
-  buyBag: (setId: string) => Promise<void>;
+  buyBag: (bagId: string) => Promise<void>;
   sellDuplicate: (coinId: string) => Promise<void>;
   awardTriviaReward: (amount: number) => Promise<void>;
   setCompletion: (setId: string) => number;
@@ -84,11 +83,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return completion >= bag.unlockThreshold;
   },
 
-  buyBag: async (setId: string) => {
-    const { player, coinDefinitions } = get();
-    if (!player || player.currency < BAG_COST) return;
+  buyBag: async (bagId: string) => {
+    const { player, coinDefinitions, ownedCoins, bags } = get();
+    if (!player) return;
 
-    const poolForSet = coinDefinitions.filter((c) => c.setIds.includes(setId));
+    const bag = bags.find((b) => b.id === bagId);
+    if (!bag) return;
+
+    if (player.currency < bag.cost) return;
+
+    const poolForSet = coinDefinitions.filter((c) => c.setIds.includes(bag.setId));
     if (poolForSet.length === 0) return;
 
     const pulledCoins: CoinDefinition[] = [];
@@ -104,15 +108,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Update ownedCoins for all pulled coins
+    const currentOwned = { ...ownedCoins };
     const updates: Record<string, OwnedCoin> = {};
+
     for (const pulled of pulledCoins) {
-      const existing = get().ownedCoins[pulled.id];
-      updates[pulled.id] = existing
+      const existing = currentOwned[pulled.id];
+      const updated: OwnedCoin = existing
         ? { ...existing, quantity: existing.quantity + 1 }
         : { coinId: pulled.id, quantity: 1, firstObtainedAt: Date.now() };
+      updates[pulled.id] = updated;
+      currentOwned[pulled.id] = updated;
     }
 
-    const updatedPlayer: PlayerState = { ...player, currency: player.currency - BAG_COST };
+    const updatedPlayer: PlayerState = { ...player, currency: player.currency - bag.cost };
 
     await db.transaction("rw", db.playerState, db.ownedCoins, async () => {
       await db.playerState.put(updatedPlayer);
