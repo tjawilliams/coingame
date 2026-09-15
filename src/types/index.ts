@@ -24,6 +24,7 @@ export interface CoinDefinition {
   reverseUrl: string;
   fact: string;
   denomination: string;
+  allowedBagIds?: string[]; // optional list of bag ids that can contain this coin
 }
 
 export interface TriviaQuestion {

@@ -89,10 +89,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const bag = bags.find((b) => b.id === bagId);
     if (!bag) return;
-
     if (player.currency < bag.cost) return;
 
-    const poolForSet = coinDefinitions.filter((c) => c.setIds.includes(bag.setId));
+    // Base pool: all coins in the album
+    let poolForSet = coinDefinitions.filter((c) => c.setIds.includes(bag.setId));
+
+    // Refine pool: if coin has allowedBagIds, it must include this bag
+    poolForSet = poolForSet.filter((c) => !c.allowedBagIds || c.allowedBagIds.includes(bag.id));
+
     if (poolForSet.length === 0) return;
 
     const pulledCoins: CoinDefinition[] = [];

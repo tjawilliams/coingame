@@ -81,6 +81,14 @@ export async function fetchSeedData() {
       setIds = [];
     }
 
+    const allowedBagIdsRaw = row.allowedBagIds?.trim();
+    const allowedBagIds = allowedBagIdsRaw
+      ? allowedBagIdsRaw
+          .split(";")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : undefined;
+
     return {
       id: row.id,
       setIds,
@@ -90,6 +98,7 @@ export async function fetchSeedData() {
       reverseUrl: row.reverseUrl,
       fact: row.fact,
       denomination: row.denomination,
+      allowedBagIds,
     };
   });
 
