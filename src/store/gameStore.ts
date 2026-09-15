@@ -14,7 +14,7 @@ import {
 const STARTING_SET_ID = "uk";
 const BAG_COST = 25;
 const SELL_VALUE: Record<Rarity, number> = {
-  common: 2,
+  common: 1,
   uncommon: 5,
   rare: 12,
   legendary: 40,

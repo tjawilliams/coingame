@@ -35,11 +35,11 @@ export function Shop() {
       <div className="rounded-xl border border-ink-900/10 bg-parchment p-4">
         <h2 className="font-plex text-lg font-semibold text-ink-900">Coin Bags</h2>
         <p className="text-sm text-ink-600">
-          Spend coins to buy mystery bags and expand your collection.
+          Spend tokens to buy mystery bags and expand your collection.
         </p>
         <p className="mt-2 text-sm font-medium text-ink-700">
           Your balance:{" "}
-          <span className="font-semibold text-copper-700">{player?.currency ?? 0} coins</span>
+          <span className="font-semibold text-copper-700">{player?.currency ?? 0} tokens</span>
         </p>
       </div>
 

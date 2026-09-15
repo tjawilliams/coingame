@@ -59,11 +59,11 @@ export function Trivia() {
       <div className="rounded-xl border border-ink-900/10 bg-parchment p-4">
         <h2 className="font-plex text-lg font-semibold text-ink-900">Coin Trivia</h2>
         <p className="text-sm text-ink-600">
-          Answer correctly to earn coins for the shop.
+          Answer correctly to earn tokens for the shop.
         </p>
         <p className="mt-2 text-sm font-medium text-ink-700">
           Your balance:{" "}
-          <span className="font-semibold text-copper-700">{player?.currency ?? 0} coins</span>
+          <span className="font-semibold text-copper-700">{player?.currency ?? 0} tokens</span>
         </p>
       </div>
 
@@ -98,7 +98,7 @@ export function Trivia() {
         {selected !== null && (
           <div className="mt-4 flex items-center justify-between">
             <p className="text-sm font-medium text-ink-700">
-              {isCorrect ? `Correct! +${current.reward} coins.` : "Not quite — no reward this time."}
+              {isCorrect ? `Correct! +${current.reward} tokens.` : "Not quite — no reward this time."}
             </p>
             <button
               onClick={pickNext}
