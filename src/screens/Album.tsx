@@ -9,7 +9,7 @@ export function Album() {
 
   // Define the order you want denominations to appear in.
   // Adjust this to match your actual denomination strings.
-  const denomOrder = ["Half Penny","1 Penny", "2 Pence", "5 Pence", "10 Pence", "20 Pence", "50 Pence", "1 Pound", "2 Pounds", "1 Cent", "2 Cent", "5 Cent", "10 Cent", "20 Cent", "50 Cent", "1 Euro", "2 Euro"];
+  const denomOrder = ["Half Penny","1 Penny", "2 Pence", "5 Pence", "10 Pence", "20 Pence", "50 Pence", "1 Pound", "2 Pounds", "Great British Coin Hunt - 10 Pence Commemorative", "Commemorative 50 Pence", "2012 Olympics, London - 50 Pence Commemorative", "Beatrix Potter - 50 Pence Commemorative", "Paddington Bear - 50 Pence Commemorative", "Heraldic Emblems - 1 Pound Commemorative", "Royal Diadems - 1 Pound Commemorative", "Regional Bridges - 1 Pound Commemorative", "UK Cities - 1 Pound Commemorative", "Floral Emblems - 1 Pound Commemorative", "Commemorative 2 Pounds", "2002 Commonwealth Games - 2 Pounds Commemorative", "Centenary of First World War - 2 Pounds Commemorative", "William Shakespeare - 2 Pounds Commemorative"];
 
   console.log("coinSets:", coinSets);
   console.log("coinDefinitions:", coinDefinitions);
