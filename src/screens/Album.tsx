@@ -9,7 +9,7 @@ export function Album() {
 
   // Define the order you want denominations to appear in.
   // Adjust this to match your actual denomination strings.
-  const denomOrder = ["1 Penny", "2 Pence", "5 Pence", "10 Pence", "20 Pence", "50 Pence", "£1", "£2", "1 Cent", "2 Cent", "5 Cent", "10 Cent", "20 Cent", "50 Cent", "1 Euro", "2 Euro"];
+  const denomOrder = ["Half Penny","1 Penny", "2 Pence", "5 Pence", "10 Pence", "20 Pence", "50 Pence", "1 Pound", "2 Pound", "1 Cent", "2 Cent", "5 Cent", "10 Cent", "20 Cent", "50 Cent", "1 Euro", "2 Euro"];
 
   console.log("coinSets:", coinSets);
   console.log("coinDefinitions:", coinDefinitions);
